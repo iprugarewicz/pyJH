@@ -1,10 +1,14 @@
 from bitarray import bitarray
+from random import randbytes
 
-d = 4
+d = 6
 
 
 def setDimension(dimension):
+    global d
     d = dimension
+    print("Dimension set to", d)
+    return d
 
 
 def bitLen(int_type):
@@ -53,13 +57,13 @@ def L(byteInput):
     return bitarray(C + D).tobytes()
 
 
-print(L(b'\x66'))
+#print(L(b'\x66'))
 
 
 def pi(byteInput):
     if type(byteInput) != bytes:
         raise TypeError
-    if len(byteInput) * 8 != 2 ** d:
+    if len(byteInput) * 2 != 2 ** d:
         raise Exception("input dimension must be " + str(d))
     input = byteToTab(byteInput)
     res = []
@@ -71,22 +75,49 @@ def pi(byteInput):
     return bitarray(res).tobytes()
 
 
-print(pi(b'\xab\x12'))
 
 
 def permPrim(byteInput):
     if type(byteInput) != bytes:
         raise TypeError
-    if len(byteInput) * 8 != 2 ** d:
+    if len(byteInput) * 2 != 2 ** d:
         raise Exception("input dimension must be " + str(d))
     input = byteToTab(byteInput)
-    res = [0]*len(input)
+    res = [0] * len(input)
 
-    for i in range(int(len(input)/2)):
-        res[i]=input[2*i]
-        res[i+2**(d-1)]=input[2 * i + 1]
+    for i in range(int(len(input) / 2)):
+        res[i] = input[2 * i]
+        res[i + 2 ** (d +1)] = input[2 * i + 1]
     return bitarray(res).tobytes()
 
-print(byteToTab(b'\xab\x12'))
-print(byteToTab(permPrim(b'\xab\x12')))
+def fi(byteInput):
+    if type(byteInput) != bytes:
+        raise TypeError
+    if len(byteInput) * 2 != 2 ** d:
+        raise Exception("input dimension must be " + str(d))
+    input = byteToTab(byteInput)
+    halfLength = int(len(input)/2)
+    res = [0]*len(input)
+
+    for i in range(0,halfLength,2):
+        res[i] = input[i]
+        res[i+1] = input[i+1]
+        res[i+halfLength] = input[i+1+halfLength]
+        res[i+1+halfLength] = input[i+halfLength]
+    return bitarray(res).tobytes()
+def permutation(byteInput):
+    if type(byteInput) != bytes:
+        raise TypeError
+    if len(byteInput) * 2 != 2 ** d:
+        #print(len(byteInput) * 2,2**d)
+        raise Exception("input dimension must be " + str(d))
+    return fi(permPrim(pi(byteInput)))
+
+
+setDimension(3)
+print(d)
+x = randbytes(2**(d-1))
+print(x)
+print(x.hex())
+print(permutation(x).hex())
 
