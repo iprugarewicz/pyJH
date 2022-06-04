@@ -85,13 +85,16 @@ def pi(byteInput):
 def permPrim(byteInput):
     if type(byteInput) != bytes:
         raise TypeError
-    inputTab = bytearray(byteInput)
+    inputTab = bytesToHexTab(byteInput)
     res = [0] * 2 ** (d)
 
     for i in range(2 ** (d-1)):
         res[i] = inputTab[2 * i]
         res[i + 2 ** (d - 1)] = inputTab[2 * i + 1]
-    return bitarray(res).tobytes()
+    temp = bytes()
+    for i in range(0,2**(d),2):
+        temp+=((res[i] <<4) + (res[i + 1])).to_bytes(1, "big")
+    return temp
 
 
 def fi(byteInput):
@@ -163,6 +166,6 @@ c = randbytes(2 ** (d - 3))
 print("x =", x.hex())
 #print(permPrim(x).hex())
 print("c =", c.hex())
-#print("R =", round(x, c).hex())
-print(fi(x))
-print(permPrim(x)) #TODO ma zmieniac bajty a nie bity czy cos
+print("R =", round(x, c).hex())
+#print(fi(x))
+#print(permPrim(x))
