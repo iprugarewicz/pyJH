@@ -117,7 +117,7 @@ def S(index, bits):
          [3, 12, 6, 13, 5, 7, 1, 9, 15, 2, 0, 4, 11, 10, 14, 8]][index][bits]
 
 
-def round(byteInput):
+def round(byteInput): # tu w instrukcji jest wejscie  2^(d-2) -1 , ale mi sie wydaje ze to literówka bo potem jest uzywane normalne 2^d -1
     if type(byteInput) != bytes:
         raise TypeError
     if len(byteInput) != 2 ** (d - 3):
