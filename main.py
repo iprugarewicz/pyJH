@@ -37,11 +37,12 @@ def byteToTab(byteInput):
     for i in byteInput:
         res.extend(intToList(i, 8))
     return res
-def bytesToHexTab(byteInput):
 
+
+def bytesToHexTab(byteInput):
     res = []
     for i in byteInput:
-        res.extend([i>>4 & 0x0F,i & 0x0F])
+        res.extend([i >> 4 & 0x0F, i & 0x0F])
     return res
 
 
@@ -88,28 +89,28 @@ def permPrim(byteInput):
     inputTab = bytesToHexTab(byteInput)
     res = [0] * 2 ** (d)
 
-    for i in range(2 ** (d-1)):
+    for i in range(2 ** (d - 1)):
         res[i] = inputTab[2 * i]
         res[i + 2 ** (d - 1)] = inputTab[2 * i + 1]
     temp = bytes()
-    for i in range(0,2**(d),2):
-        temp+=((res[i] <<4) + (res[i + 1])).to_bytes(1, "big")
+    for i in range(0, 2 ** (d), 2):
+        temp += ((res[i] << 4) + (res[i + 1])).to_bytes(1, "big")
     return temp
 
 
 def fi(byteInput):
-    res =[]
+    res = []
     if type(byteInput) != bytes:
         raise TypeError
     inputTab = bytesToHexTab(byteInput)
-    halfLength = 2**(d-1)
+    halfLength = 2 ** (d - 1)
     res = bytes()
 
-    for i in range(0, 2**(d-1),2):
-        res+=((inputTab[i]<<4) + inputTab[i + 1]).to_bytes(1,"big")
+    for i in range(0, 2 ** (d - 1), 2):
+        res += ((inputTab[i] << 4) + inputTab[i + 1]).to_bytes(1, "big")
 
-    for i in range(0, 2**(d-1),2):
-        res += (inputTab[i+halfLength]  + (inputTab[i + 1+halfLength]<<4)).to_bytes(1, "big")
+    for i in range(0, 2 ** (d - 1), 2):
+        res += (inputTab[i + halfLength] + (inputTab[i + 1 + halfLength] << 4)).to_bytes(1, "big")
 
     return res
 
@@ -132,7 +133,7 @@ def round(byteInput,
           constant):  # tu w instrukcji jest wejscie  2^(d-2) -1 , ale mi sie wydaje ze to literówka bo potem jest uzywane normalne 2^d -1
     if type(byteInput) != bytes:
         raise TypeError
-    if len(byteInput) != 2 ** (d-1):
+    if len(byteInput) != 2 ** (d - 1):
         raise Exception("input dimension must be " + str(d))
     if len(constant) != 2 ** (d - 3):
         raise Exception("constant dimension must be " + str(d - 2))
@@ -158,14 +159,37 @@ def round(byteInput,
     return permutation(res)
 
 
+def E(input, cos):
+    return input
+
+
+def group(A):
+    q = [0] * 2 ** (d+4)
+    for i in range(2 ** (d - 1)):
+        q[2 * i] = [A[i],
+                    A[i + 2 ** d],
+                    A[i + 2 * 2 ** d],
+                    A[i + 3 * 2 ** d]]
+        q[2 * i + 1] = [A[i + 2 ** (d - 1)],
+                        A[i + 2 ** (d - 1) + 2 ** d],
+                        A[i + 2 ** (d - 1) + 2 * 2 ** d],
+                        A[i + 2 ** (d - 1) + 3 * 2 ** d]]
+
+    return q
+
+
+def deGroup(Q):
+    return
+
+
 setDimension(4)
-x = b'\x19\xf1\xc1\x8e\x1a\xbc\x81\x08' #randbytes(2 ** (d-1))
+x = b'\x19\xf1\xc1\x8e\x1a\xbc\x81\x08'  # randbytes(2 ** (d-1))
 c = randbytes(2 ** (d - 3))
 
-
 print("x =", x.hex())
-#print(permPrim(x).hex())
-print("c =", c.hex())
-print("R =", round(x, c).hex())
-#print(fi(x))
-#print(permPrim(x))
+# print(permPrim(x).hex())
+#print("c =", c.hex())
+#print("R =", round(x, c).hex())
+# print(fi(x))
+# print(permPrim(x))
+print(group(byteToTab(x)))
