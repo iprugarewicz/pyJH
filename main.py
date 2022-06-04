@@ -5,8 +5,8 @@ d = 6
 
 
 def setDimension(dimension):
-    if dimension < 3:
-        raise TypeError("Minimum dimension 3")
+    if dimension < 2:
+        raise TypeError("Minimum dimension 2")
     global d
     d = dimension
     print("Dimension set to", d)
@@ -36,6 +36,12 @@ def byteToTab(byteInput):
     res = []
     for i in byteInput:
         res.extend(intToList(i, 8))
+    return res
+def bytesToHexTab(byteInput):
+
+    res = []
+    for i in byteInput:
+        res.extend([i>>4 & 0x0F,i & 0x0F])
     return res
 
 
@@ -79,28 +85,30 @@ def pi(byteInput):
 def permPrim(byteInput):
     if type(byteInput) != bytes:
         raise TypeError
-    inputTab = byteToTab(byteInput)
-    res = [0] * len(inputTab)
+    inputTab = bytearray(byteInput)
+    res = [0] * 2 ** (d)
 
-    for i in range(int(len(inputTab) / 2)):
+    for i in range(2 ** (d-1)):
         res[i] = inputTab[2 * i]
         res[i + 2 ** (d - 1)] = inputTab[2 * i + 1]
     return bitarray(res).tobytes()
 
 
 def fi(byteInput):
+    res =[]
     if type(byteInput) != bytes:
         raise TypeError
-    inputTab = byteToTab(byteInput)
-    halfLength = int(len(inputTab) / 2)
-    res = [0] * len(inputTab)
+    inputTab = bytesToHexTab(byteInput)
+    halfLength = 2**(d-1)
+    res = bytes()
 
-    for i in range(0, halfLength, 2):
-        res[i] = inputTab[i]
-        res[i + 1] = inputTab[i + 1]
-        res[i + halfLength] = inputTab[i + 1 + halfLength]
-        res[i + 1 + halfLength] = inputTab[i + halfLength]
-    return bitarray(res).tobytes()
+    for i in range(0, 2**(d-1),2):
+        res+=((inputTab[i]<<4) + inputTab[i + 1]).to_bytes(1,"big")
+
+    for i in range(0, 2**(d-1),2):
+        res += (inputTab[i+halfLength]  + (inputTab[i + 1+halfLength]<<4)).to_bytes(1, "big")
+
+    return res
 
 
 def permutation(byteInput):
@@ -117,36 +125,44 @@ def S(index, bits):
          [3, 12, 6, 13, 5, 7, 1, 9, 15, 2, 0, 4, 11, 10, 14, 8]][index][bits]
 
 
-def round(byteInput): # tu w instrukcji jest wejscie  2^(d-2) -1 , ale mi sie wydaje ze to literówka bo potem jest uzywane normalne 2^d -1
+def round(byteInput,
+          constant):  # tu w instrukcji jest wejscie  2^(d-2) -1 , ale mi sie wydaje ze to literówka bo potem jest uzywane normalne 2^d -1
     if type(byteInput) != bytes:
         raise TypeError
-    if len(byteInput) != 2 ** (d - 3):
+    if len(byteInput) != 2 ** (d-1):
         raise Exception("input dimension must be " + str(d))
+    if len(constant) != 2 ** (d - 3):
+        raise Exception("constant dimension must be " + str(d - 2))
+
     inputTab = byteToTab(byteInput)
+    constant = byteToTab(constant)
     temp = []
-    for i in range(0, 2 ** d, 8):
-        temp.append((S(0, inputTab[i] * 8 + inputTab[i + 1] * 4 + inputTab[i + 2] * 2 + inputTab[i + 3]) * 16 +
-                     S(1, inputTab[i + 4] * 8 + inputTab[i + 5] * 4 + inputTab[i + 6] * 2 + inputTab[i + 7])).to_bytes(
-            1, "big"))
+    for i in range(0, 2 ** (d)):
+        if constant[i] == 0:
+            temp.append((S(0, inputTab[i] * 8 + inputTab[i + 1] * 4 + inputTab[i + 2] * 2 + inputTab[i + 3]) * 16 +
+                         S(0,
+                           inputTab[i + 4] * 8 + inputTab[i + 5] * 4 + inputTab[i + 6] * 2 + inputTab[i + 7])).to_bytes(
+                1, "big"))
+        elif constant[i] == 1:
+            temp.append((S(1, inputTab[i] * 8 + inputTab[i + 1] * 4 + inputTab[i + 2] * 2 + inputTab[i + 3]) * 16 +
+                         S(1,
+                           inputTab[i + 4] * 8 + inputTab[i + 5] * 4 + inputTab[i + 6] * 2 + inputTab[i + 7])).to_bytes(
+                1, "big"))
+
     res = bytes()
     for i in temp:
         res += L(i)
     return permutation(res)
 
 
-def multipleRounds(byteInput, rounds):
-    if type(byteInput) != bytes:
-        raise TypeError
-    if len(byteInput) != 2 ** (d - 3):
-        raise Exception("input dimension must be " + str(d))
-    temp =bytes();
-    for i in range(rounds):
-        temp = round(byteInput)
-        byteInput = temp
-    return temp
+setDimension(4)
+x = b'\x19\xf1\xc1\x8e\x1a\xbc\x81\x08' #randbytes(2 ** (d-1))
+c = randbytes(2 ** (d - 3))
 
 
-setDimension(8)
-x = randbytes(2 ** (d - 3))
-print(x.hex(), "->", round(x).hex())
-print(x.hex(), "->", multipleRounds(x,6).hex())
+print("x =", x.hex())
+#print(permPrim(x).hex())
+print("c =", c.hex())
+#print("R =", round(x, c).hex())
+print(fi(x))
+print(permPrim(x)) #TODO ma zmieniac bajty a nie bity czy cos
