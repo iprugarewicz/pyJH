@@ -66,6 +66,7 @@ def R(bits, c):
     v=[]
     for i in range(0,len(bits)//4):
         v.append(util.int2ba(S[c[i]][util.ba2int(bits[4*i:4*i+4])],4))
+
     for i in range(0,len(v),2):
         outl=L(v[i],v[i+1])
         v[i]=outl[0]
@@ -92,21 +93,21 @@ def E(A):
         Q=R(Q,C[i])
     B=len(A)*bitarray('0')
     for i in range (0,l):
-        B[i]=Q[4*i]
-        B[l+i]=Q[4*l+4*i]
-        B[2*l+i]=Q[4*i+1]
-        B[3*l+i]=Q[4*l+4*i+1]
-        B[4*l+i]=Q[4*i+2]
-        B[5*l+i]=Q[4*l+4*i+2]
-        B[6*l+i]=Q[4*i+3]
-        B[7*l+i]=Q[4*l+4*i+3]
+        B[i]=Q[8*i]
+        B[l+i]=Q[8*i+4]
+        B[2*l+i]=Q[8*i+1]
+        B[3*l+i]=Q[8*i+5]
+        B[4*l+i]=Q[8*i+2]
+        B[5*l+i]=Q[8*i+6]
+        B[6*l+i]=Q[8*i+3]
+        B[7*l+i]=Q[8*i+7]
     return B
 
 def F(H,M):
-    H=H^(M+2**(d+1)*bitarray('0'))
-    H=E(H)
-    H=H^(2**(d+1)*bitarray('0')+M)
-    return H
+    A=H^(M+2**(d+1)*bitarray('0'))
+    B=E(A)
+    out=B^(2**(d+1)*bitarray('0')+M)
+    return out
 
 def msgtobits(msg):
     if(type(msg)==int):
@@ -119,7 +120,7 @@ def msgtobits(msg):
         return b
     if(type(msg)==str):
         b=bitarray()
-        b.frombytes(bytes(msg,'utf-8'))
+        b.frombytes(bytes(msg,'ascii'))
         return b
     raise TypeError
 
@@ -134,7 +135,7 @@ def JH224(message):
     H=F(H,512*bitarray('0'))
     for i in range(0,m):
         H=F(H,M[512*i:512*i+512])
-    return util.ba2int(H[800:])
+    return util.ba2hex(H[800:])
 
 def JH256(message):
     M=msgtobits(message)
@@ -145,9 +146,10 @@ def JH256(message):
     m=len(M)//512
     H=bitarray('0000000100000000')+1008*bitarray('0')
     H=F(H,512*bitarray('0'))
+    print(util.ba2hex(H))
     for i in range(0,m):
         H=F(H,M[512*i:512*i+512])
-    return util.ba2int(H[768:])
+    return util.ba2hex(H[768:])
 
 def JH384(message):
     M=msgtobits(message)
@@ -160,7 +162,7 @@ def JH384(message):
     H=F(H,512*bitarray('0'))
     for i in range(0,m):
         H=F(H,M[512*i:512*i+512])
-    return util.ba2int(H[640:])
+    return util.ba2hex(H[640:])
 
 def JH512(message):
     M=msgtobits(message)
@@ -173,4 +175,4 @@ def JH512(message):
     H=F(H,512*bitarray('0'))
     for i in range(0,m):
         H=F(H,M[512*i:512*i+512])
-    return util.ba2int(H[512:])
+    return util.ba2hex(H[512:])
