@@ -168,7 +168,7 @@ def F(H, M):
     return out
 
 
-def msgtobits(msg):
+def messageToBits(msg):
     if (type(msg) == int):
         return util.int2ba(msg)
     if (type(msg) == bitarray):
@@ -185,7 +185,7 @@ def msgtobits(msg):
 
 
 def JH224(message):
-    M = msgtobits(message)
+    M = messageToBits(message)
     l = len(M)
     M.append(1)
     M.extend([0] * (383 + ((-l) % 512)))
@@ -198,7 +198,7 @@ def JH224(message):
 
 
 def JH256(message):
-    M = msgtobits(message)
+    M = messageToBits(message)
     l = len(M)
     M.append(1)
     M.extend([0] * (383 + ((-l) % 512)))
@@ -211,7 +211,7 @@ def JH256(message):
 
 
 def JH384(message):
-    M = msgtobits(message)
+    M = messageToBits(message)
     l = len(M)
     M.append(1)
     M.extend([0] * (383 + ((-l) % 512)))
@@ -225,7 +225,7 @@ def JH384(message):
 
 
 def JH512(message):
-    M = msgtobits(message)
+    M = messageToBits(message)
     l = len(M)
     M.append(1)
     M.extend([0] * (383 + ((-l) % 512)))
